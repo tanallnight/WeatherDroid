@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package com.tanmay.weatherdroidlib.apis;
+package com.tanmay.weatherdroidlib.api;
 
 import com.tanmay.weatherdroidlib.models.forecastio.ForecastIORequest;
 import com.tanmay.weatherdroidlib.models.forecastio.ForecastIOResponse;
 
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -65,9 +66,30 @@ public class ForecastIOApi {
         return mRetrofit;
     }
 
-    public void getWeather(ForecastIORequest request, Callback<ForecastIOResponse> responseCallback) {
+    public void getWeather(ForecastIORequest request, final ForecastResponse responseCallback) {
         Call<ForecastIOResponse> call = forecastIOService.getWeather(apiKey, request, request.getRequestParams());
-        call.enqueue(responseCallback);
+        call.enqueue(new Callback<ForecastIOResponse>() {
+            @Override
+            public void onResponse(Call<ForecastIOResponse> call, Response<ForecastIOResponse> response) {
+                ForecastIOResponse forecastIOResponse = response.body();
+                forecastIOResponse.headers.Cache_Control = response.headers().get("Cache-Control");
+                forecastIOResponse.headers.expires = response.headers().get("Expires");
+                forecastIOResponse.headers.X_Forecast_API_Calls = response.headers().get("X-Forecast-API-Calls");
+                forecastIOResponse.headers.X_Response_Time = response.headers().get("X-Response-Time");
+                responseCallback.onSuccess(forecastIOResponse);
+            }
+
+            @Override
+            public void onFailure(Call<ForecastIOResponse> call, Throwable t) {
+                responseCallback.onFail(t);
+            }
+        });
+    }
+
+    public interface ForecastResponse {
+        void onSuccess(ForecastIOResponse response);
+
+        void onFail(Throwable t);
     }
 
 }

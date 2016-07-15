@@ -22,17 +22,44 @@ import android.text.method.ScrollingMovementMethod;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
-import com.tanmay.weatherdroidlib.apis.ForecastIOApi;
+import com.tanmay.weatherdroidlib.api.ForecastIOApi;
 import com.tanmay.weatherdroidlib.models.forecastio.ForecastIORequest;
 import com.tanmay.weatherdroidlib.models.forecastio.ForecastIOResponse;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     TextView textView;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        textView = (TextView) findViewById(R.id.response);
+        textView.setMovementMethod(new ScrollingMovementMethod());
+
+        ForecastIORequest request = new ForecastIORequest.Builder()
+                .setLatitude(37.8267)
+                .setLongtiude(-122.423)
+                .setUnits(ForecastIORequest.UNITS_SI)
+                .exclude(ForecastIORequest.BLOCK_MINUTELY)
+                .exclude(ForecastIORequest.BLOCK_FLAGS)
+                .setLanguage(ForecastIORequest.LANGUAGE_ENGLISH)
+                .build();
+
+        ForecastIOApi.getInstance().getWeather(request, new ForecastIOApi.ForecastResponse() {
+            @Override
+            public void onSuccess(ForecastIOResponse response) {
+                textView.setText(formatString(new Gson().toJson(response)));
+            }
+
+            @Override
+            public void onFail(Throwable t) {
+
+            }
+        });
+
+    }
 
     public static String formatString(String text) {
 
@@ -64,35 +91,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return json.toString();
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        textView = (TextView) findViewById(R.id.response);
-        textView.setMovementMethod(new ScrollingMovementMethod());
-
-        ForecastIORequest request = new ForecastIORequest.Builder()
-                .setLatitude(37.8267)
-                .setLongtiude(-122.423)
-                .setUnits(ForecastIORequest.UNITS_SI)
-                .exclude(ForecastIORequest.BLOCK_MINUTELY)
-                .exclude(ForecastIORequest.BLOCK_FLAGS)
-                .setLanguage(ForecastIORequest.LANGUAGE_ENGLISH)
-                .build();
-
-        ForecastIOApi.getInstance().getWeather(request, new Callback<ForecastIOResponse>() {
-            @Override
-            public void onResponse(Call<ForecastIOResponse> call, Response<ForecastIOResponse> response) {
-                textView.setText(formatString(new Gson().toJson(response.body())));
-            }
-
-            @Override
-            public void onFailure(Call<ForecastIOResponse> call, Throwable t) {
-            }
-        });
-
     }
 }

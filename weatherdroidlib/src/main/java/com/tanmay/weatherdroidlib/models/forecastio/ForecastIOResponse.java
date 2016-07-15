@@ -32,6 +32,6 @@ public class ForecastIOResponse {
     public DataBlock hourly;
     public DataBlock daily;
     public List<Alerts> alerts;
-    public ForecastIOHeaders responseHeaders;
+    public Headers headers = new Headers();
 
 }

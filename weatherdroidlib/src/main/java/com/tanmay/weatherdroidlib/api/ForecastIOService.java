@@ -14,16 +14,24 @@
  * limitations under the License.
  */
 
-package com.tanmay.weatherdroidlib.models.forecastio;
+package com.tanmay.weatherdroidlib.api;
+
+import com.tanmay.weatherdroidlib.models.forecastio.ForecastIORequest;
+import com.tanmay.weatherdroidlib.models.forecastio.ForecastIOResponse;
+
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.QueryMap;
 
 /**
  * Created by Tanmay on 7/14/2016.
  */
-public class ForecastIOHeaders {
+public interface ForecastIOService {
 
-    public String Cache_Control;
-    public String expires;
-    public String X_Forecast_API_Calls;
-    public String X_Response_Time;
+    @GET("/forecast/{apiKey}/{request}")
+    Call<ForecastIOResponse> getWeather(@Path("apiKey") String apiKey, @Path("request") ForecastIORequest request, @QueryMap Map<String, String> query);
 
 }

@@ -18,7 +18,7 @@ package com.tanmay.weatherdroidlib;
 
 import android.support.annotation.StringDef;
 
-import com.tanmay.weatherdroidlib.apis.ForecastIOApi;
+import com.tanmay.weatherdroidlib.api.ForecastIOApi;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

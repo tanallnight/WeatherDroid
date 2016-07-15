@@ -29,7 +29,7 @@ public class DemoApplication extends Application {
     public void onCreate() {
         super.onCreate();
         new WeatherService.Builder()
-                .addService(WeatherService.SERVICE_FORECAST_IO, YOUR_API_KEY_HERE)
+                .addService(WeatherService.SERVICE_FORECAST_IO, Keys.KEY_FORECAST_IO)
                 .build();
     }
 }
