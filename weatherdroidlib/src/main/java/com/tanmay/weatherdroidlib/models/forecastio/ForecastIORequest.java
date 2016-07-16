@@ -36,6 +36,7 @@ public class ForecastIORequest {
     public static final String UNITS_CA = "ca";
     public static final String UNITS_UK = "uk2";
     public static final String UNITS_AUTO = "auto";
+    public static final String UNITS_LOCAL_CONVERT = "si";
     public static final String BLOCK_CURRENTLY = "currently";
     public static final String BLOCK_MINUTELY = "minutely";
     public static final String BLOCK_HOURLY = "hourly";
@@ -133,7 +134,7 @@ public class ForecastIORequest {
         }
     }
 
-    @StringDef({UNITS_SI, UNITS_CA, UNITS_US, UNITS_UK, UNITS_AUTO})
+    @StringDef({UNITS_SI, UNITS_CA, UNITS_US, UNITS_UK, UNITS_AUTO, UNITS_LOCAL_CONVERT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface RequestUnits {
     }

@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         ForecastIORequest request = new ForecastIORequest.Builder()
                 .setLatitude(37.8267)
                 .setLongtiude(-122.423)
-                .setUnits(ForecastIORequest.UNITS_SI)
+                .setUnits(ForecastIORequest.UNITS_LOCAL_CONVERT)
                 .exclude(ForecastIORequest.BLOCK_MINUTELY)
                 .exclude(ForecastIORequest.BLOCK_FLAGS)
                 .setLanguage(ForecastIORequest.LANGUAGE_ENGLISH)
