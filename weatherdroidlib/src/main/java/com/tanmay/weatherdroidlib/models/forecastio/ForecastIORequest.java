@@ -168,8 +168,8 @@ public class ForecastIORequest {
             return this;
         }
 
-        public Builder setTime(long time) {
-            this.time = time;
+        public Builder setTime(long epoch) {
+            this.time = epoch;
             return this;
         }
 

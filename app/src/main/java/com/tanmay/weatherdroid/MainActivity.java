@@ -19,6 +19,7 @@ package com.tanmay.weatherdroid;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -43,13 +44,15 @@ public class MainActivity extends AppCompatActivity {
                 .setLongtiude(-122.423)
                 .setUnits(ForecastIORequest.UNITS_LOCAL_CONVERT)
                 .exclude(ForecastIORequest.BLOCK_MINUTELY)
-                .exclude(ForecastIORequest.BLOCK_FLAGS)
+                .exclude(ForecastIORequest.BLOCK_HOURLY)
+                .exclude(ForecastIORequest.BLOCK_DAILY)
                 .setLanguage(ForecastIORequest.LANGUAGE_ENGLISH)
                 .build();
 
         ForecastIOApi.getInstance().getWeather(request, new ForecastIOApi.ForecastResponse() {
             @Override
             public void onSuccess(ForecastIOResponse response) {
+                Log.d("MAINACT", response.toString());
                 textView.setText(formatString(new Gson().toJson(response)));
             }
 
@@ -71,17 +74,17 @@ public class MainActivity extends AppCompatActivity {
             switch (letter) {
                 case '{':
                 case '[':
-                    json.append("\n" + indentString + letter + "\n");
+                    json.append("\n").append(indentString).append(letter).append("\n");
                     indentString = indentString + "\t";
                     json.append(indentString);
                     break;
                 case '}':
                 case ']':
                     indentString = indentString.replaceFirst("\t", "");
-                    json.append("\n" + indentString + letter);
+                    json.append("\n").append(indentString).append(letter);
                     break;
                 case ',':
-                    json.append(letter + "\n" + indentString);
+                    json.append(letter).append("\n").append(indentString);
                     break;
 
                 default:
