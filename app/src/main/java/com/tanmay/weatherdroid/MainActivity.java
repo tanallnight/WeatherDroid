@@ -17,27 +17,79 @@
 package com.tanmay.weatherdroid;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
+import android.widget.EditText;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.tanmay.weatherdroidlib.api.ForecastIOApi;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.places.AutocompletePrediction;
+import com.google.android.gms.location.places.Places;
+import com.tanmay.weatherdroidlib.api.GooglePlaceAutocompleteApi;
 import com.tanmay.weatherdroidlib.models.forecastio.ForecastIORequest;
-import com.tanmay.weatherdroidlib.models.forecastio.ForecastIOResponse;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.List;
+
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     TextView textView;
+    EditText editTextView;
+    GoogleApiClient googleApiClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .enableAutoManage(this, this)
+                .build();
+
+        GooglePlaceAutocompleteApi.create(googleApiClient);
+
         textView = (TextView) findViewById(R.id.response);
         textView.setMovementMethod(new ScrollingMovementMethod());
+
+        editTextView = (EditText) findViewById(R.id.search);
+        editTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                String param = editable.toString();
+                if (param.length() != 0) {
+                    GooglePlaceAutocompleteApi.getInstance().getCityPredictions(param, new GooglePlaceAutocompleteApi.AutocompleteResultCallback() {
+                        @Override
+                        public void onResult(List<AutocompletePrediction> predictions) {
+                            for (AutocompletePrediction prediction : predictions) {
+                                Log.d("PREDICTIONS", prediction.getFullText(null).toString());
+                            }
+                            Log.d("PREDICTIONS", "----------END---------");
+                        }
+
+                        @Override
+                        public void onFailure(Status status) {
+
+                        }
+                    });
+                }
+            }
+        });
 
         ForecastIORequest request = new ForecastIORequest.Builder()
                 .setLatitude(37.8267)
@@ -49,18 +101,6 @@ public class MainActivity extends AppCompatActivity {
                 .setLanguage(ForecastIORequest.LANGUAGE_ENGLISH)
                 .build();
 
-        ForecastIOApi.getInstance().getWeather(request, new ForecastIOApi.ForecastResponse() {
-            @Override
-            public void onSuccess(ForecastIOResponse response) {
-                Log.d("MAINACT", response.toString());
-                textView.setText(formatString(new Gson().toJson(response)));
-            }
-
-            @Override
-            public void onFail(Throwable t) {
-
-            }
-        });
 
     }
 
@@ -94,5 +134,10 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return json.toString();
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
     }
 }
