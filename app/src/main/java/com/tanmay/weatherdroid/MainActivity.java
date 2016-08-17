@@ -31,9 +31,12 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.Places;
+import com.tanmay.weatherdroidlib.api.ForecastIOApi;
 import com.tanmay.weatherdroidlib.api.GooglePlaceAutocompleteApi;
 import com.tanmay.weatherdroidlib.models.forecastio.ForecastIORequest;
+import com.tanmay.weatherdroidlib.models.forecastio.ForecastIOResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
@@ -91,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
             }
         });
 
-        ForecastIORequest request = new ForecastIORequest.Builder()
+        ForecastIORequest request1 = new ForecastIORequest.Builder()
                 .setLatitude(37.8267)
                 .setLongtiude(-122.423)
                 .setUnits(ForecastIORequest.UNITS_LOCAL_CONVERT)
@@ -100,6 +103,32 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.O
                 .exclude(ForecastIORequest.BLOCK_DAILY)
                 .setLanguage(ForecastIORequest.LANGUAGE_ENGLISH)
                 .build();
+
+        ForecastIORequest request2 = new ForecastIORequest.Builder()
+                .setLatitude(43.737)
+                .setLongtiude(-79.7646)
+                .setUnits(ForecastIORequest.UNITS_LOCAL_CONVERT)
+                .exclude(ForecastIORequest.BLOCK_MINUTELY)
+                .exclude(ForecastIORequest.BLOCK_HOURLY)
+                .exclude(ForecastIORequest.BLOCK_DAILY)
+                .setLanguage(ForecastIORequest.LANGUAGE_ENGLISH)
+                .build();
+
+        List<ForecastIORequest> requests = new ArrayList<>();
+        requests.add(request1);
+        requests.add(request2);
+
+        ForecastIOApi.getInstance().getWeatherMulti(requests, new ForecastIOApi.ForecastMultiResponse() {
+            @Override
+            public void onSuccess(List<ForecastIOResponse> responses) {
+                responses.size();
+            }
+
+            @Override
+            public void onFail(List<Throwable> throwables) {
+
+            }
+        });
 
 
     }

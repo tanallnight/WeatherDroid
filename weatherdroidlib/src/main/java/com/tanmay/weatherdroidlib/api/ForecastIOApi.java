@@ -16,8 +16,14 @@
 
 package com.tanmay.weatherdroidlib.api;
 
+import android.os.AsyncTask;
+
 import com.tanmay.weatherdroidlib.models.forecastio.ForecastIORequest;
 import com.tanmay.weatherdroidlib.models.forecastio.ForecastIOResponse;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -86,10 +92,70 @@ public class ForecastIOApi {
         });
     }
 
+    public void getWeatherMulti(List<ForecastIORequest> requests, ForecastMultiResponse responseCallback) {
+        new MultiRequest(requests, responseCallback).execute();
+    }
+
+    public interface ForecastMultiResponse {
+        void onSuccess(List<ForecastIOResponse> responses);
+
+        void onFail(List<Throwable> throwables);
+    }
+
     public interface ForecastResponse {
         void onSuccess(ForecastIOResponse response);
 
         void onFail(Throwable t);
+    }
+
+    private class MultiRequest extends AsyncTask<Void, Void, Void> {
+
+        private List<ForecastIORequest> requests;
+        private ForecastMultiResponse responseCallback;
+        private List<ForecastIOResponse> responses;
+        private List<Throwable> throwables;
+
+        private boolean hasFailed = false;
+
+        public MultiRequest(List<ForecastIORequest> requests, ForecastMultiResponse responseCallback) {
+            this.requests = requests;
+            this.responseCallback = responseCallback;
+            responses = new ArrayList<>();
+            throwables = new ArrayList<>();
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            for (ForecastIORequest request : requests) {
+                Call<ForecastIOResponse> call = forecastIOService.getWeather(apiKey, request, request.getRequestParams());
+                try {
+                    Response<ForecastIOResponse> response = call.execute();
+                    ForecastIOResponse forecastIOResponse = response.body();
+                    forecastIOResponse.headers.Cache_Control = response.headers().get("Cache-Control");
+                    forecastIOResponse.headers.expires = response.headers().get("Expires");
+                    forecastIOResponse.headers.X_Forecast_API_Calls = response.headers().get("X-Forecast-API-Calls");
+                    forecastIOResponse.headers.X_Response_Time = response.headers().get("X-Response-Time");
+                    responses.add(forecastIOResponse);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    throwables.add(e);
+                    hasFailed = true;
+                }
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if (hasFailed) {
+                responseCallback.onFail(throwables);
+            } else {
+                responseCallback.onSuccess(responses);
+            }
+        }
     }
 
 }
